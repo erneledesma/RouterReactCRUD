@@ -8,7 +8,7 @@ function Productos({productos}) {
         <h1 className="text-center">Productos</h1>
         <ul className=" list-group mt-5">
             { productos.map(producto => (
-// damos por implicito al return con los parentesis
+        // damos por implicito al return con los parentesis
                 <ProductoLista
                 key= {producto.id}
                 producto = { producto }

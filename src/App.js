@@ -11,18 +11,27 @@ import Header from './components/Header';
 function App() {
 
   const [ productos, guardarProductos ] = useState([])
+  const [ recargarProductos, guardarRecargaProductos ] = useState(true)
 
   useEffect(() => {
-      const consultarApi = async () => {
-        // consultar la api de json -server
-        const resultado = await axios.get('http://localhost:4000/restaurant');
 
-       // console.log(resultado);
-       guardarProductos(resultado.data); // pasamos el resultado al state
+      if(recargarProductos){
+        const consultarApi = async () => {
+          // consultar la api de json -server
+          const resultado = await axios.get('http://localhost:4000/restaurant');
+  
+         // console.log(resultado);
+         guardarProductos(resultado.data); // pasamos el resultado al state
+      }
+     
+      consultarApi();// llamamos a la funcion
+
+      // cambiar a false la recarga de los productos
+      guardarRecargaProductos(false)
         
       }
-      consultarApi();// llamamos a la funcion
-  },[])
+     
+  },[recargarProductos])
   return (
     
     <Router>
@@ -37,7 +46,12 @@ function App() {
         )}
           />
          
-        <Route exact path="/nuevo-producto" component={AgregarProducto}></Route>
+        <Route exact path="/nuevo-producto" 
+        render={() => (
+          <AgregarProducto
+          guardarRecargaProductos={ guardarRecargaProductos }
+          />
+        )}></Route>
         <Route exact path="/productos/:id" component={Productos}></Route>
         <Route exact path="productos/editar/:id" component={EditarProducto}></Route>
       </Switch>

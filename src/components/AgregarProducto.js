@@ -1,12 +1,71 @@
 import React, {useState} from 'react';
+import Error from './Error';
 
-function AgregarProducto() {
+import axios from 'axios';
+import Swal from 'sweetalert2';
+// Esta es la forma de redireccionar hacia el componente
+import { withRouter } from 'react-router-dom'
+
+
+function AgregarProducto({history, guardarRecargaProductos}) { // este history es el que redirecciona
 
     // creamos nuestro state que tiene tres partes, todos inicializan como 
     // strin vacios
     const [nombrePlato, guardarNombre ] = useState('');
     const [precioPlato, guardarPrecio ] = useState('');
     const [categoria, guardarCategoria ] = useState('');
+    const [error, guardarError ] = useState(false);
+
+   
+
+    // funcion para  leer los datos
+    const leerValorRadio = e => {
+        guardarCategoria(e.target.value)
+    }
+
+    const agregarProducto = async e => {
+        e.preventDefault();
+        //manejamos el error
+        if(nombrePlato === '' || precioPlato === '' || categoria === '') {
+            guardarError(true);
+            return;
+        }
+
+        guardarError(false);
+
+        // crear el nuevo producto
+        try {
+            const resultado = await axios.post('http://localhost:4000/restaurant', {
+                nombrePlato,
+                precioPlato,
+                categoria
+            })
+
+            console.log(resultado);
+            if (resultado.status === 201){
+                Swal.fire(
+                    'Producto creado!!',
+                    'El producto se creo correctamente',
+                    'success'
+                  )
+            }
+            
+        } catch(error) {
+             console.log(error);
+             Swal.fire({
+                type: 'error',
+                title: 'Opps,  Error...',
+                text: 'Hubo un error, vuelve a intentarlo!',
+                
+              })
+             
+
+        }
+
+        // redirigir al usuario los productos
+        guardarRecargaProductos(true)
+        history.push('/productos')
+    }
 
      
     return (
@@ -14,9 +73,12 @@ function AgregarProducto() {
             <h1 className="text-center">Agregar Producto</h1>
        
             <h1 className="text-center">Agregar Nuevo Producto</h1>
+            {(error) ? <Error mensaje=
+            'Todos los campos son obligatorios'/> : null }
 
             <form
                 className="mt-5"
+                onSubmit= { agregarProducto }
             >
                 <div className="form-group">
                     <label>Nombre Plato</label>
@@ -48,6 +110,7 @@ function AgregarProducto() {
                         type="radio" 
                         name="categoria"
                         value="postre"
+                        onChange={leerValorRadio}
                     />
                     <label className="form-check-label">
                         Postre
@@ -59,6 +122,7 @@ function AgregarProducto() {
                         type="radio" 
                         name="categoria"
                         value="bebida"
+                        onChange={leerValorRadio}
                     />
                     <label className="form-check-label">
                         Bebida
@@ -71,6 +135,7 @@ function AgregarProducto() {
                         type="radio" 
                         name="categoria"
                         value="cortes"
+                        onChange={leerValorRadio}
                     />
                     <label className="form-check-label">
                         Cortes
@@ -83,6 +148,7 @@ function AgregarProducto() {
                         type="radio" 
                         name="categoria"
                         value="ensalada"
+                        onChange={leerValorRadio}
                     />
                     <label className="form-check-label">
                         Ensalada
@@ -96,4 +162,5 @@ function AgregarProducto() {
     )
 }
 
-export default AgregarProducto;
+export default  withRouter(AgregarProducto);
+// esto es lo que se conoce como un Higher Order Component
